@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ascent on Pantano — Drone Video Collection</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f3;
+    color: #1a1a1a;
+    line-height: 1.6;
+  }
+  .page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+    text-align: center;
+  }
+
+  /* HEADER */
+  .header {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e0e0d8;
+    margin-bottom: 2rem;
+  }
+  .greeting {
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: #d4f0e4;
+    color: #0a6644;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #555;
+    margin-top: 0.75rem;
+    line-height: 1.7;
+  }
+
+  /* NOTE BOX */
+  .note-box {
+    background: #fff;
+    border: 1px solid #e4e4dc;
+    border-top: 4px solid #1D9E75;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+  .note-box p { font-size: 14px; color: #444; line-height: 1.75; }
+  .note-box p + p { margin-top: 0.6rem; }
+
+  /* VIDEO GRID */
+  .video-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .video-card {
+    background: #fff;
+    border: 1px solid #e4e4dc;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+
+  /* THUMBNAIL / PLAY BUTTON */
+  .video-thumb {
+    position: relative;
+    padding-top: 56.25%;
+    background: #111;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .video-thumb::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    z-index: 2;
+    background: transparent;
+    pointer-events: all;
+  }
+  .thumb-img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scale(1.5);
+    transform-origin: center;
+    transition: opacity 0.2s;
+  }
+  .thumb-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .video-thumb:hover .thumb-overlay { background: rgba(0,0,0,0.4); }
+  .play-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    transition: transform 0.15s;
+  }
+  .video-thumb:hover .play-btn { transform: scale(1.08); }
+  .play-icon {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 11px 0 11px 20px;
+    border-color: transparent transparent transparent #111;
+    margin-left: 4px;
+  }
+
+  /* CARD FOOTER */
+  .card-footer {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid #f0f0e8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .video-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    text-align: center;
+  }
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    font-size: 13px;
+    background: #f5f5f3;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    color: #444;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+    white-space: nowrap;
+    min-height: 40px;
+  }
+  .action-btn:hover { background: #ebebea; border-color: #bbb; }
+  .action-btn:active { transform: scale(0.97); }
+  .action-btn.copied { color: #0a6644; border-color: #5DCAA5; background: #d4f0e4; }
+
+  /* FOOTER */
+  .footer {
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0d8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .footer-left { font-size: 13px; color: #666; }
+  .footer-right { font-size: 12px; color: #999; }
+
+  /* DEV CARD */
+  .dev-card {
+    margin-top: 2.5rem;
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+  .dev-label {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.4);
+  }
+  .dev-logo-link {
+    display: inline-block;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  .dev-logo-link:hover { transform: scale(1.05); opacity: 0.85; }
+  .dev-logo {
+    max-width: 320px;
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: brightness(1.1);
+  }
+  .dev-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.25rem;
+  }
+  .dev-contact-item {
+    font-size: 15px;
+    color: rgba(0,0,0,0.65);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: color 0.15s;
+  }
+  .dev-contact-item:hover { color: #000; }
+  .dev-contact-icon { font-size: 17px; }
+
+  /* ── SOCIAL CALENDAR ── */
+  .social-section {
+    margin-top: 3rem;
+    text-align: left;
+  }
+  .social-header {
+    text-align: center;
+    padding: 2rem 0 1.5rem;
+    border-top: 1px solid #e0e0d8;
+  }
+  .social-header .greeting { margin-bottom: 0.5rem; }
+  .social-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.5rem;
+  }
+  .social-header p {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+  }
+  .social-note {
+    background: #fff;
+    border: 1px solid #e4e4dc;
+    border-top: 4px solid #1D9E75;
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 2rem;
+    font-size: 13px;
+    color: #444;
+    line-height: 1.75;
+  }
+  .week-block { margin-bottom: 2.5rem; }
+  .week-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #e4e4dc;
+  }
+  .week-pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+  }
+  .week-heading h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+  }
+  .post-card {
+    background: #fff;
+    border: 1px solid #e4e4dc;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .post-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0e8;
+    flex-wrap: wrap;
+  }
+  .platform-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pill-ig { background: #fce4ec; color: #c2185b; }
+  .pill-tt { background: #e8e8e8; color: #111; }
+  .pill-fb { background: #e3f2fd; color: #1565c0; }
+  .pill-tw { background: #e1f5fe; color: #0277bd; }
+  .post-day { font-size: 12px; color: #888; }
+  .post-video-ref {
+    margin-left: auto;
+    font-size: 11px;
+    color: #1D9E75;
+    font-weight: 600;
+    background: #d4f0e4;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .post-body { padding: 12px 14px; }
+  .post-field-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #aaa;
+    margin-bottom: 4px;
+  }
+  .copy-block {
+    background: #f9f9f7;
+    border: 1px solid #e4e4dc;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #222;
+    line-height: 1.65;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    position: relative;
+  }
+  .hashtag-block {
+    background: #f0faf5;
+    border: 1px solid #b2dfcf;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #0a6644;
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+  .copy-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .copy-btn {
+    font-size: 12px;
+    background: #f5f5f3;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: #444;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { background: #ebebea; border-color: #bbb; }
+  .copy-btn.copied { color: #0a6644; border-color: #5DCAA5; background: #d4f0e4; }
+
+  .bonus-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #fff;
+    border: 1px solid #e4e4dc;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .bonus-table th {
+    background: #f5f5f3;
+    padding: 9px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    border-bottom: 1px solid #e4e4dc;
+  }
+  .bonus-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0e8;
+    color: #333;
+    vertical-align: top;
+  }
+  .bonus-table tr:last-child td { border-bottom: none; }
+
+  /* MOBILE OVERRIDES */
+  @media (max-width: 600px) {
+    .note-box {
+      text-align: center;
+    }
+    .week-heading {
+      justify-content: center;
+      text-align: center;
+    }
+    .social-note {
+      text-align: center;
+    }
+    .post-field-label,
+    .copy-block,
+    .hashtag-block {
+      text-align: center;
+    }
+    .post-head {
+      justify-content: center;
+      text-align: center;
+    }
+    .post-video-ref {
+      margin-left: 0;
+    }
+    .copy-row {
+      justify-content: center;
+    }
+    .bonus-table th,
+    .bonus-table td {
+      text-align: center;
+    }
+  }
+
+  /* MODAL */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-backdrop.active { display: flex; }
+  .modal-inner {
+    position: relative;
+    width: 100%;
+    max-width: min(1280px, calc(100vw - 2rem));
+    max-height: calc(100vh - 2rem);
+    background: #000;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-video-wrap {
+    position: relative;
+    padding-top: 56.25%;
+    flex-shrink: 0;
+  }
+  .modal-video-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    z-index: 2;
+    background: transparent;
+    pointer-events: all;
+  }
+  .modal-video-wrap iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+  .modal-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 14px 16px;
+    background: #111;
+  }
+  .ctrl-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5); }
+  .ctrl-btn svg { width: 18px; height: 18px; fill: #fff; }
+  .modal-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    flex: 1;
+    text-align: center;
+  }
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.15s;
+  }
+  .close-btn:hover { background: rgba(255,255,255,0.15); }
+  .close-btn svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <p class="greeting">Good morning — a gift from your drone partner</p>
+    <h1 class="title">Ascent on Pantano<br>Drone Video Collection</h1>
+    <span class="badge">Month 1 · Complimentary</span>
+    <p class="subtitle">8 professional videos, ready to post. Tap any video to preview, then copy the link or embed code for your social channels.</p>
+  </div>
+
+  <div class="note-box">
+    <p>These videos are yours to use however you like this month — Instagram, Facebook, TikTok, your website, wherever. Professional grade, no edits needed.</p>
+    <p>Post one a day, rotate them, or feature one all week. The goal: show prospective residents what living at Ascent on Pantano actually looks like.</p>
+  </div>
+
+  <div class="video-grid" id="videoGrid"></div>
+
+  <div class="footer">
+    <span class="footer-left">Produced exclusively for Ascent on Pantano · June 2026</span>
+    <span class="footer-right">Questions? Reply to this message.</span>
+  </div>
+
+  <div class="dev-card">
+    <p class="dev-label">Content produced by</p>
+    <a href="https://lamar-myers-biz-card.vercel.app/" target="_blank" rel="noopener" class="dev-logo-link">
+      <img src="https://mlgmigguhljsiopctkkj.supabase.co/storage/v1/object/public/MY%20PORTFOLIO/LOGOS/lamar_myers_b.png" alt="Lamar Myers" class="dev-logo">
+    </a>
+    <div class="dev-contact">
+      <a href="mailto:ai.agent.lamar@gmail.com" class="dev-contact-item">
+        <span class="dev-contact-icon">✉</span> ai.agent.lamar@gmail.com
+      </a>
+      <a href="tel:+15202582714" class="dev-contact-item">
+        <span class="dev-contact-icon">📱</span> (520) 258-2714
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ SOCIAL MEDIA CALENDAR ══ -->
+  <div class="social-section">
+
+    <div class="social-header">
+      <p class="greeting">Your 4-week content plan — ready to post</p>
+      <h2>Social Media Campaign Calendar</h2>
+      <p>Instagram · TikTok · Facebook · X &nbsp;|&nbsp; June 2026 · Produced by Lamar Myers</p>
+    </div>
+
+    <div class="social-note">
+      This calendar covers 4 weeks of content across all four platforms using your 8 professional videos. Each post includes a ready-to-publish caption and hashtag set — just tap <strong>Copy Caption</strong> or <strong>Copy Hashtags</strong>, then tap <strong>Download Video</strong> (this opens the video on Vimeo — tap the download/arrow icon there to save it to your phone or desktop). Once it's saved, open Instagram/TikTok/Facebook, start a new post, select that video from your gallery, and paste in the caption and hashtags. Posting tip: one post per day keeps your feed active and your algorithm happy.
+    </div>
+    <div class="social-note">
+      <strong>First time downloading?</strong> On your phone, tap Download Video → tap the down-arrow icon on the Vimeo page → the video saves to your Photos/Gallery. On a computer, it saves to your Downloads folder — just drag that file into Instagram, TikTok, or Facebook when creating your post. It feels a little clunky the first time, but once you've done it once it becomes second nature.
+    </div>
+
+    <!-- ══ WEEK 1 ══ -->
+    <div class="week-block">
+      <div class="week-heading">
+        <span class="week-pill">Week 1</span>
+        <h3>The Big Launch — Aerial + Pool</h3>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-ig">📸 Instagram</span><span class="post-day">Monday · Reel</span><span class="post-video-ref">Aerial View</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c1">Tucson living from a whole new perspective. Welcome to Ascent on Pantano — where the views are just the beginning. Tap the link in our bio to schedule your tour today.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h1">#AscentOnPantano #TucsonApartments #ApartmentTour #DroneView #NewHome</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c1',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h1',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-fb">👍 Facebook</span><span class="post-day">Monday · Video Post</span><span class="post-video-ref">Aerial View</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c2">Welcome to Ascent on Pantano — Tucson's newest gem. We filmed this aerial tour so you could see exactly what life looks like here before you even step foot on property. Tours are available 7 days a week. Call us today or click the link to schedule at your convenience. We would love to show you around.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h2">#AscentOnPantano #TucsonApartments #NowLeasing #TucsonAZ</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c2',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h2',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tt">♪ TikTok</span><span class="post-day">Tuesday · TikTok Video</span><span class="post-video-ref">Aerial View</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c3">POV: you actually live here. Aerial footage of Ascent on Pantano in Tucson, AZ. Tours available now — drop a question in the comments and we will answer every single one.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h3">#AscentOnPantano #DroneFootage #ApartmentTour #TucsonAZ #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c3',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h3',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tw">✕ X / Twitter</span><span class="post-day">Tuesday · Video Tweet</span><span class="post-video-ref">Aerial View</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c4">Tucson from above. This is Ascent on Pantano and it is exactly as good as it looks. Tours available now — come see it for yourself.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h4">#TucsonAZ #ApartmentLiving #AscentOnPantano #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c4',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h4',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-ig">📸 Instagram</span><span class="post-day">Wednesday · Reel</span><span class="post-video-ref">Pool Area</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c5">Your summer plans just got a serious upgrade. This is the pool life you deserve. Come home to resort-style living every single day at Ascent on Pantano. Link in bio to book a tour.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h5">#AscentOnPantano #PoolLife #ApartmentPool #ResortLiving #TucsonAZ</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c5',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h5',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tt">♪ TikTok</span><span class="post-day">Thursday · TikTok Photo Post</span><span class="post-video-ref">Community Grounds</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c6">The vibe check starts before you even get to your front door. Walking the grounds at Ascent on Pantano. This community just hits different.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h6">#AscentOnPantano #ApartmentWalkthrough #ApartmentTour #TucsonAZ #ApartmentHunting</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c6',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h6',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Image</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-fb">👍 Facebook</span><span class="post-day">Thursday · Video Post</span><span class="post-video-ref">Pool Area</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c7">Summer is officially here and so is your dream pool. Ascent on Pantano is more than an apartment — it is a lifestyle upgrade. Come experience resort-style amenities right in your own backyard. Reach out today to schedule a tour. We are leasing now and would love to find the perfect home for you.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h7">#AscentOnPantano #TucsonLiving #PoolLife #ApartmentAmenities</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c7',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h7',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tw">✕ X / Twitter</span><span class="post-day">Friday · Video Tweet</span><span class="post-video-ref">Pool Area</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c8">Your summer base camp just got locked in. Ascent on Pantano is now leasing in Tucson. Pool included.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h8">#Tucson #PoolLife #AscentOnPantano #ApartmentLife</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c8',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h8',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ WEEK 2 ══ -->
+    <div class="week-block">
+      <div class="week-heading">
+        <span class="week-pill">Week 2</span>
+        <h3>Interior Life — Apartment + Gym</h3>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-ig">📸 Instagram</span><span class="post-day">Monday · Reel</span><span class="post-video-ref">Inside Apartment</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c9">This is what home looks like. Modern finishes. Thoughtful design. Space that actually feels like yours. Come see it for yourself — schedule a tour through the link in our bio.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h9">#AscentOnPantano #InteriorDesign #ApartmentTour #ModernLiving #TucsonAZ</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c9',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h9',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-fb">👍 Facebook</span><span class="post-day">Monday · Video Post</span><span class="post-video-ref">Leasing Office</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c10">Our leasing team is here to make your move as easy as possible. Whether you are searching for a one-bedroom or a two-bedroom, we will help you find your perfect fit. Stop by our leasing office anytime, give us a call, or shoot us a message here. We are happy to walk you through everything.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h10">#AscentOnPantano #LeasingOffice #TucsonApartments #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c10',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h10',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tt">♪ TikTok</span><span class="post-day">Tuesday · TikTok Video</span><span class="post-video-ref">Pool Area</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c11">Apartment pools that actually look like THIS. Tell me you live the good life without telling me. Ascent on Pantano, Tucson AZ. Now leasing.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h11">#AscentOnPantano #PoolLife #ApartmentPool #SummerApartment #TucsonAZ</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c11',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h11',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tw">✕ X / Twitter</span><span class="post-day">Tuesday · Video Tweet</span><span class="post-video-ref">Inside Apartment</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c12">Clean. Modern. Home. Ascent on Pantano apartments look like this every single day. Come see it in person.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h12">#AscentOnPantano #TucsonLiving #ApartmentTour #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c12',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h12',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-ig">📸 Instagram</span><span class="post-day">Wednesday · Reel</span><span class="post-video-ref">Gym Area</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c13">No commute. No membership fee. No excuses. Your state-of-the-art gym is right downstairs. At Ascent on Pantano, we built your lifestyle into your address.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h13">#AscentOnPantano #ApartmentGym #FitnessLife #HomeGym #TucsonFitness</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c13',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h13',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tt">♪ TikTok</span><span class="post-day">Thursday · TikTok Video</span><span class="post-video-ref">Inside Apartment</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c14">Apartment hunting in Tucson? Stop scrolling. This is Ascent on Pantano and we have exactly what you are looking for. Comment your move-in date and we will get you set up.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h14">#AscentOnPantano #ApartmentHunting #ApartmentTour #NowLeasing #TucsonAZ</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c14',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h14',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-fb">👍 Facebook</span><span class="post-day">Thursday · Video Post</span><span class="post-video-ref">Gym Area</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c15">Fitness-forward living starts here. Our state-of-the-art gym gives residents everything they need to stay consistent — no monthly fees, no drive, no hassle. Just walk downstairs and get after it. Come see it in person. Tours are available every day of the week.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h15">#AscentOnPantano #ApartmentGym #TucsonLiving #FitnessAmenities</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c15',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h15',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tw">✕ X / Twitter</span><span class="post-day">Friday · Video Tweet</span><span class="post-video-ref">Gym Area</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c16">Built-in motivation. The gym is downstairs, no membership needed. Ascent on Pantano — now leasing in Tucson.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h16">#AscentOnPantano #ApartmentLife #TucsonAZ #FitnessGoals</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c16',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h16',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ WEEK 3 ══ -->
+    <div class="week-block">
+      <div class="week-heading">
+        <span class="week-pill">Week 3</span>
+        <h3>Floor Plans + Community Feel</h3>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-ig">📸 Instagram</span><span class="post-day">Monday · Reel</span><span class="post-video-ref">Floor Plan A</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c17">The one-bedroom you have been looking for is right here. Clean lines, smart layout, and room for everything that matters. Limited availability — schedule your tour today. Link in bio.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h17">#AscentOnPantano #1Bedroom #FloorPlan #ApartmentHunting #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c17',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h17',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-fb">👍 Facebook</span><span class="post-day">Monday · Video Post</span><span class="post-video-ref">Floor Plan B</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c18">Spacious two-bedroom, two-bathroom homes are now available at Ascent on Pantano. Perfect for roommates, growing families, or anyone who just loves having room to breathe. Tag someone who needs a new place and share this with them — availability is limited and these units go fast.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h18">#AscentOnPantano #2BedroomApartment #TucsonAZ #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c18',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h18',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tt">♪ TikTok</span><span class="post-day">Tuesday · TikTok Video</span><span class="post-video-ref">Floor Plan B</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c19">Two bedrooms. Two bathrooms. One seriously good decision. This is Floor Plan B at Ascent on Pantano. Link in bio or just comment and we will reach out directly.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h19">#AscentOnPantano #2Bedroom #FloorPlan #ApartmentTour #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c19',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h19',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tw">✕ X / Twitter</span><span class="post-day">Tuesday · Photo Tweet</span><span class="post-video-ref">Community Grounds</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c20">Every day starts and ends right here. Ascent on Pantano — now leasing in Tucson, AZ. What are you waiting for?</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h20">#AscentOnPantano #TucsonApartments #NowLeasing #NewHome</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c20',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h20',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Image</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ WEEK 4 ══ -->
+    <div class="week-block">
+      <div class="week-heading">
+        <span class="week-pill">Week 4</span>
+        <h3>The Closer — Leasing Office + Final Push</h3>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-ig">📸 Instagram</span><span class="post-day">Monday · Reel</span><span class="post-video-ref">Leasing Office</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c21">Your next chapter starts right through these doors. Our leasing team is ready to find your perfect fit — one-bedrooms, two-bedrooms, and everything in between. Tours available 7 days a week. Link in bio to get started.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h21">#AscentOnPantano #LeasingOffice #NowLeasing #ApartmentTour #TucsonAZ</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c21',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h21',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tt">♪ TikTok</span><span class="post-day">Tuesday · TikTok Video</span><span class="post-video-ref">Floor Plan A</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c22">Ever wonder what your future apartment actually looks like before you sign? We are showing you every inch of Floor Plan A at Ascent on Pantano. One bed, one bath, zero compromises. Comment "tour" and we will DM you the link.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h22">#AscentOnPantano #FloorPlan #1Bedroom #ApartmentTour #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c22',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h22',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-fb">👍 Facebook</span><span class="post-day">Wednesday · Photo Post</span><span class="post-video-ref">Community Grounds</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c23">There is something special about coming home to a community that actually feels like one. Manicured grounds, palm trees, open space — Ascent on Pantano was designed for people who want more than four walls. We still have availability. Reach out today and let us show you around.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h23">#AscentOnPantano #CommunityLiving #TucsonAZ #ApartmentLife #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c23',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h23',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Image</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-tw">✕ X / Twitter</span><span class="post-day">Thursday · Video Tweet</span><span class="post-video-ref">Floor Plan B</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c24">Walk through your future apartment before you ever step foot inside. Ascent on Pantano is leasing now in Tucson. See the floor plan, then come see the real thing.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h24">#AscentOnPantano #TucsonAZ #FloorPlan #ApartmentTour #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c24',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h24',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-head"><span class="platform-pill pill-ig">📸 Instagram</span><span class="post-day">Friday · Reel</span><span class="post-video-ref">Gym Area</span></div>
+        <div class="post-body">
+          <div class="post-field-label">Caption</div>
+          <div class="copy-block" id="c25">Month one of living at Ascent on Pantano: gym is literally downstairs, pool is out back, mountains are the backdrop. This is the one. Limited units remaining — link in bio to lock yours in.</div>
+          <div class="post-field-label">Hashtags</div>
+          <div class="hashtag-block" id="h25">#AscentOnPantano #ApartmentGym #FitnessLife #LimitedAvailability #NowLeasing</div>
+          <div class="copy-row"><button class="copy-btn" onclick="copyEl('c25',this)">📋 Copy Caption</button><button class="copy-btn" onclick="copyEl('h25',this)">🏷 Copy Hashtags</button><button class="copy-btn" onclick="downloadVideo(this)">⬇ Download Video</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BONUS ══ -->
+    <div class="week-block">
+      <div class="week-heading">
+        <span class="week-pill" style="background:#b8860b;">⭐ Bonus</span>
+        <h3>Extra Content — Stories, Highlights & Ads</h3>
+      </div>
+      <table class="bonus-table">
+        <thead><tr><th>Video</th><th>Best Use</th><th>Tip</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Aerial View</strong></td><td>Facebook Ad / Boosted Post</td><td>Highest impact for paid campaigns — strongest first impression</td></tr>
+          <tr><td><strong>Inside Apartment</strong></td><td>Instagram Highlight "Our Homes"</td><td>Pin to profile so it's always discoverable</td></tr>
+          <tr><td><strong>Pool Area</strong></td><td>Instagram Story / Facebook Story</td><td>Post every Friday in summer — "Weekend plans sorted"</td></tr>
+          <tr><td><strong>Leasing Office</strong></td><td>Instagram Story with link sticker</td><td>Add a "Book a Tour" link sticker directly on the video</td></tr>
+          <tr><td><strong>Floor Plan A</strong></td><td>Instagram Highlight "Floor Plans"</td><td>Great for prospects researching before they call</td></tr>
+          <tr><td><strong>Floor Plan B</strong></td><td>TikTok repurpose / YouTube Shorts</td><td>Unique content that stands out from typical apartment posts</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <!-- END SOCIAL CALENDAR -->
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-inner" id="modalInner">
+    <button class="close-btn" id="closeBtn" aria-label="Close video">
+      <svg viewBox="0 0 16 16"><line x1="2" y1="2" x2="14" y2="14"/><line x1="14" y1="2" x2="2" y2="14"/></svg>
+    </button>
+    <div class="modal-video-wrap" id="modalVideoWrap"></div>
+    <div class="modal-controls">
+      <button class="ctrl-btn" id="pauseBtn" aria-label="Pause">
+        <svg viewBox="0 0 18 18"><rect x="3" y="2" width="4" height="14" rx="1"/><rect x="11" y="2" width="4" height="14" rx="1"/></svg>
+      </button>
+      <span class="modal-title" id="modalTitle"></span>
+      <button class="ctrl-btn" id="playBtn" aria-label="Play">
+        <svg viewBox="0 0 18 18"><path d="M4 2 L16 9 L4 16 Z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://player.vimeo.com/api/player.js"></script>
+<script>
+const videos = [
+  { label: "Aerial View",       id: "1200025934", thumb: "https://vumbnail.com/1200025934.jpg" },
+  { label: "Inside Apartment",  id: "1200031862", thumb: "https://vumbnail.com/1200031862.jpg" },
+  { label: "Pool Area",         id: "1200032008", thumb: "https://vumbnail.com/1200032008.jpg" },
+  { label: "Leasing Office",    id: "1200032185", thumb: "https://vumbnail.com/1200032185.jpg" },
+  { label: "Gym Area",          id: "1200032300", thumb: "https://vumbnail.com/1200032300.jpg" },
+  { label: "Leasing Walkway",   id: "1200032553", thumb: "https://vumbnail.com/1200032553.jpg" },
+  { label: "Floor Plan A",      id: "1200032862", thumb: "https://vumbnail.com/1200032862.jpg" },
+  { label: "Floor Plan B",      id: "1200033063", thumb: "https://vumbnail.com/1200033063.jpg" }
+];
+
+const embedCode = (id, label) =>
+  `<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/${id}?badge=0&autopause=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="${label}"></iframe></div><script src="https://player.vimeo.com/api/player.js"><\/script>`;
+
+const grid = document.getElementById("videoGrid");
+const backdrop = document.getElementById("modalBackdrop");
+const modalVideoWrap = document.getElementById("modalVideoWrap");
+const modalTitle = document.getElementById("modalTitle");
+const closeBtn = document.getElementById("closeBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const playBtn = document.getElementById("playBtn");
+
+let currentPlayer = null;
+
+function openModal(v) {
+  modalTitle.textContent = v.label;
+  modalVideoWrap.innerHTML = `<iframe id="modalIframe" src="https://player.vimeo.com/video/${v.id}?autoplay=1&loop=1&badge=0&autopause=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>`;
+  currentPlayer = new Vimeo.Player(document.getElementById("modalIframe"));
+  backdrop.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  if (currentPlayer) { currentPlayer.pause(); currentPlayer = null; }
+  modalVideoWrap.innerHTML = "";
+  backdrop.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+closeBtn.addEventListener("click", closeModal);
+
+backdrop.addEventListener("click", (e) => {
+  if (e.target === backdrop) closeModal();
+});
+
+pauseBtn.addEventListener("click", () => { if (currentPlayer) currentPlayer.pause(); });
+playBtn.addEventListener("click",  () => { if (currentPlayer) currentPlayer.play(); });
+
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+videos.forEach((v) => {
+  const card = document.createElement("div");
+  card.className = "video-card";
+
+  // Thumbnail
+  const thumb = document.createElement("div");
+  thumb.className = "video-thumb";
+  thumb.innerHTML = `
+    <img class="thumb-img" src="${v.thumb}" alt="${v.label}" onerror="this.style.display='none'">
+    <div class="thumb-overlay">
+      <div class="play-btn"><div class="play-icon"></div></div>
+    </div>`;
+  thumb.addEventListener("click", () => openModal(v));
+
+  // Footer
+  const footer = document.createElement("div");
+  footer.className = "card-footer";
+
+  const lbl = document.createElement("div");
+  lbl.className = "video-label";
+  lbl.textContent = v.label;
+
+  const btnRow = document.createElement("div");
+  btnRow.className = "btn-row";
+
+  const copyLink = document.createElement("button");
+  copyLink.className = "action-btn";
+  copyLink.innerHTML = "&#128279; Copy Link";
+  copyLink.onclick = () => {
+    navigator.clipboard.writeText(`https://vimeo.com/${v.id}`).then(() => {
+      copyLink.innerHTML = "&#10003; Copied!";
+      copyLink.classList.add("copied");
+      setTimeout(() => { copyLink.innerHTML = "&#128279; Copy Link"; copyLink.classList.remove("copied"); }, 2000);
+    });
+  };
+
+  const copyEmbed = document.createElement("button");
+  copyEmbed.className = "action-btn";
+  copyEmbed.innerHTML = "&#60;/&#62; Copy Embed";
+  copyEmbed.onclick = () => {
+    navigator.clipboard.writeText(embedCode(v.id, v.label)).then(() => {
+      copyEmbed.innerHTML = "&#10003; Copied!";
+      copyEmbed.classList.add("copied");
+      setTimeout(() => { copyEmbed.innerHTML = "&#60;/&#62; Copy Embed"; copyEmbed.classList.remove("copied"); }, 2000);
+    });
+  };
+
+  btnRow.appendChild(copyLink);
+  btnRow.appendChild(copyEmbed);
+  footer.appendChild(lbl);
+  footer.appendChild(btnRow);
+  card.appendChild(thumb);
+  card.appendChild(footer);
+  grid.appendChild(card);
+});
+
+function copyEl(id, btn) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+const labelToId = {};
+videos.forEach(v => { labelToId[v.label] = v.id; });
+labelToId["Community Grounds"] = labelToId["Leasing Walkway"];
+
+// Direct file URLs hosted in Supabase (added one at a time as files are uploaded)
+const videoFiles = {
+  "Pool Area": "https://elzeahxurnplnrwizjpo.supabase.co/storage/v1/object/public/ascent_on_pantano/videos/pool_area.mp4",
+  "Aerial View": "https://elzeahxurnplnrwizjpo.supabase.co/storage/v1/object/public/ascent_on_pantano/videos/aerial_view.mp4",
+  "Floor Plan A": "https://elzeahxurnplnrwizjpo.supabase.co/storage/v1/object/public/ascent_on_pantano/videos/floorplan_a.mp4",
+  "Floor Plan B": "https://elzeahxurnplnrwizjpo.supabase.co/storage/v1/object/public/ascent_on_pantano/videos/floorplan_b.mp4",
+  "Gym Area": "https://elzeahxurnplnrwizjpo.supabase.co/storage/v1/object/public/ascent_on_pantano/videos/gym_area.mp4",
+  "Inside Apartment": "https://elzeahxurnplnrwizjpo.supabase.co/storage/v1/object/public/ascent_on_pantano/videos/inside_apartment.mp4",
+  "Leasing Office": "https://elzeahxurnplnrwizjpo.supabase.co/storage/v1/object/public/ascent_on_pantano/videos/leasing_office.mp4"
+};
+
+// Community Grounds is an image instead of video (file too large for free plan)
+const imageFiles = {
+  "Community Grounds": "https://elzeahxurnplnrwizjpo.supabase.co/storage/v1/object/public/ascent_on_pantano/leasing_office.png"
+};
+
+function downloadVideo(btn) {
+  const card = btn.closest('.post-card');
+  const ref = card.querySelector('.post-video-ref').textContent.trim();
+  const fileUrl = videoFiles[ref] || imageFiles[ref];
+  const isImage = !!imageFiles[ref];
+  const ext = isImage ? '.png' : '.mp4';
+
+  if (fileUrl) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '⏳ Preparing...';
+    fetch(fileUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = ref.replace(/\s+/g, '_').toLowerCase() + ext;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+        btn.innerHTML = '✓ Downloaded!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      })
+      .catch(() => {
+        // Fallback: open file directly in a new tab if fetch is blocked
+        window.open(fileUrl, '_blank');
+        btn.innerHTML = orig;
+      });
+    return;
+  }
+
+  // Fallback to Vimeo page until that video's file is uploaded
+  const id = labelToId[ref];
+  if (id) {
+    window.open(`https://vimeo.com/${id}`, '_blank');
+  }
+  const orig = btn.innerHTML;
+  btn.innerHTML = '↗ Opening Vimeo...';
+  setTimeout(() => { btn.innerHTML = orig; }, 2000);
+}
+</script>
+</body>
+</html>
