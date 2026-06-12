@@ -955,7 +955,7 @@ document.querySelectorAll('.post-card').forEach(card => {
   wrap.style.maxWidth = '320px';
 
   const video = document.createElement('video');
-  video.src = fileUrl;
+  video.src = fileUrl + '#t=0.1';
   video.controls = true;
   video.loop = true;
   video.playsInline = true;
