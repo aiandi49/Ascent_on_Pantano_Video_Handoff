@@ -939,6 +939,40 @@ const videoFiles = {
 
 const imageFiles = {};
 
+// Insert inline video preview players into each post-card
+document.querySelectorAll('.post-card').forEach(card => {
+  const refEl = card.querySelector('.post-video-ref');
+  if (!refEl) return;
+  const ref = refEl.textContent.trim();
+  const fileUrl = videoFiles[ref];
+  if (!fileUrl) return;
+
+  const wrap = document.createElement('div');
+  wrap.style.margin = '10px 0';
+  wrap.style.borderRadius = '8px';
+  wrap.style.overflow = 'hidden';
+  wrap.style.background = '#000';
+  wrap.style.maxWidth = '320px';
+
+  const video = document.createElement('video');
+  video.src = fileUrl;
+  video.controls = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.preload = 'metadata';
+  video.style.width = '100%';
+  video.style.display = 'block';
+
+  wrap.appendChild(video);
+
+  const copyRow = card.querySelector('.copy-row');
+  if (copyRow) {
+    copyRow.parentNode.insertBefore(wrap, copyRow);
+  } else {
+    card.querySelector('.post-body').appendChild(wrap);
+  }
+});
+
 function downloadVideo(btn) {
   const card = btn.closest('.post-card');
   const ref = card.querySelector('.post-video-ref').textContent.trim();
